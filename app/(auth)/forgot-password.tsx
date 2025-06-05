@@ -1,15 +1,32 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
+import * as api from '@/services/api';
 
-export default function CreatePasswordScreen() {
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+export default function ForgotPasswordScreen() {
+  const [phoneNumber] = useState('7397551335'); // Hardcoded for now
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleContinue = () => {
-    router.push('/otp-verification');
+  const handleSendOTP = async () => {
+    try {
+      setIsLoading(true);
+      setError('');
+      
+      const response = await api.sendOTP(phoneNumber);
+      
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      router.push('/otp-verification');
+    } catch (err: any) {
+      setError(err.message || 'Failed to send OTP. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -21,35 +38,32 @@ export default function CreatePasswordScreen() {
         <ArrowLeft size={24} color="#000" />
       </TouchableOpacity>
 
-      <Text style={styles.title}>Create Password</Text>
+      <Text style={styles.title}>Forgot Password?</Text>
       <Text style={styles.subtitle}>
-        Your new password must be unique from those previously used.
+        Don't worry! It happens. Please enter your phone number to receive OTP.
       </Text>
 
       <View style={styles.form}>
-        <Text style={styles.label}>New Password:</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter New Password"
-          value={newPassword}
-          onChangeText={setNewPassword}
-          secureTextEntry
-        />
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-        <Text style={styles.label}>Confirm Password:</Text>
+        <Text style={styles.label}>Phone Number:</Text>
         <TextInput
           style={styles.input}
-          placeholder="Confirm Your New Password"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
+          value={phoneNumber}
+          editable={false}
+          keyboardType="phone-pad"
         />
 
         <TouchableOpacity 
-          style={styles.button}
-          onPress={handleContinue}
+          style={[styles.button, isLoading && styles.buttonDisabled]}
+          onPress={handleSendOTP}
+          disabled={isLoading}
         >
-          <Text style={styles.buttonText}>Continue</Text>
+          {isLoading ? (
+            <ActivityIndicator color="#000" />
+          ) : (
+            <Text style={styles.buttonText}>Send OTP</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -79,6 +93,12 @@ const styles = StyleSheet.create({
   form: {
     width: '100%',
   },
+  errorText: {
+    color: '#FF3B30',
+    fontSize: 14,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
   label: {
     fontSize: 16,
     fontWeight: '500',
@@ -101,6 +121,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,
+  },
+  buttonDisabled: {
+    opacity: 0.7,
   },
   buttonText: {
     color: '#000000',

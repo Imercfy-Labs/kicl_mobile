@@ -55,6 +55,44 @@ export async function login(email: string, password: string): Promise<ApiRespons
   }
 }
 
+export async function sendOTP(phoneNumber: string): Promise<ApiResponse<{ message: string }>> {
+  try {
+    const response = await fetch(`${API_URL}/send-otp`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Origin': window.location.origin
+      },
+      mode: 'cors',
+      body: JSON.stringify({ phone_number: phoneNumber }),
+    });
+
+    return await handleResponse<{ message: string }>(response);
+  } catch (error: any) {
+    return { error: error.message || 'Failed to send OTP' };
+  }
+}
+
+export async function verifyOTP(phoneNumber: string, otp: string): Promise<ApiResponse<{ message: string }>> {
+  try {
+    const response = await fetch(`${API_URL}/verify-otp`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Origin': window.location.origin
+      },
+      mode: 'cors',
+      body: JSON.stringify({ phone_number: phoneNumber, otp }),
+    });
+
+    return await handleResponse<{ message: string }>(response);
+  } catch (error: any) {
+    return { error: error.message || 'Failed to verify OTP' };
+  }
+}
+
 export async function resetPassword(email: string): Promise<ApiResponse<{ message: string }>> {
   try {
     const response = await fetch(`${API_URL}/reset-password`, {
@@ -66,25 +104,6 @@ export async function resetPassword(email: string): Promise<ApiResponse<{ messag
       },
       mode: 'cors',
       body: JSON.stringify({ email }),
-    });
-
-    return await handleResponse<{ message: string }>(response);
-  } catch (error: any) {
-    return { error: error.message || 'Failed to connect to the server' };
-  }
-}
-
-export async function verifyOTP(email: string, otp: string): Promise<ApiResponse<{ message: string }>> {
-  try {
-    const response = await fetch(`${API_URL}/verify-otp`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      },
-      mode: 'cors',
-      body: JSON.stringify({ email, otp }),
     });
 
     return await handleResponse<{ message: string }>(response);
