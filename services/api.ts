@@ -42,9 +42,7 @@ export async function login(email: string, password: string): Promise<ApiRespons
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Origin': window.location.origin
       },
-      mode: 'cors',
       body: JSON.stringify({ email, password }),
     });
 
@@ -57,38 +55,50 @@ export async function login(email: string, password: string): Promise<ApiRespons
 
 export async function sendOTP(phoneNumber: string): Promise<ApiResponse<{ message: string }>> {
   try {
+    console.log('Sending OTP request for:', phoneNumber);
+    
     const response = await fetch(`${API_URL}/send-otp`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Origin': window.location.origin
       },
-      mode: 'cors',
-      body: JSON.stringify({ phone_number: phoneNumber }),
+      body: JSON.stringify({ phoneNumber }),
     });
 
-    return await handleResponse<{ message: string }>(response);
+    console.log('OTP request response status:', response.status);
+    
+    const result = await handleResponse<{ message: string }>(response);
+    console.log('OTP request response:', result);
+    
+    return result;
   } catch (error: any) {
+    console.error('Error sending OTP:', error);
     return { error: error.message || 'Failed to send OTP' };
   }
 }
 
 export async function verifyOTP(phoneNumber: string, otp: string): Promise<ApiResponse<{ message: string }>> {
   try {
+    console.log('Verifying OTP for:', phoneNumber);
+    
     const response = await fetch(`${API_URL}/verify-otp`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Origin': window.location.origin
       },
-      mode: 'cors',
-      body: JSON.stringify({ phone_number: phoneNumber, otp }),
+      body: JSON.stringify({ phoneNumber, otp }),
     });
 
-    return await handleResponse<{ message: string }>(response);
+    console.log('OTP verification response status:', response.status);
+    
+    const result = await handleResponse<{ message: string }>(response);
+    console.log('OTP verification response:', result);
+    
+    return result;
   } catch (error: any) {
+    console.error('Error verifying OTP:', error);
     return { error: error.message || 'Failed to verify OTP' };
   }
 }
@@ -100,9 +110,7 @@ export async function resetPassword(email: string): Promise<ApiResponse<{ messag
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Origin': window.location.origin
       },
-      mode: 'cors',
       body: JSON.stringify({ email }),
     });
 
